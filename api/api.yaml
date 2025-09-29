@@ -1,0 +1,933 @@
+openapi: 3.0.4
+info:
+  title: Travel Social Network API
+  description: API для социальной сети путешественников
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Production server
+
+paths:
+  # ===== IMAGE UPLOAD =====
+  /images:
+    post:
+      summary: Upload image
+      description: Upload image for post (max 2MB)
+      tags: [Images]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - image
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Image file (max 2MB)
+      responses:
+        201:
+          description: Image uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  image_url:
+                    type: string
+                    example: "https://cdn.travel-network.com/images/abc123.jpg"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+
+  # ===== POSTS =====
+  /posts:
+    post:
+      summary: Create a new post
+      description: Publish a post with photo, description and location
+      tags: [Posts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+                - description
+                - location_id
+                - image_url
+              properties:
+                user_id:
+                  type: integer
+                description:
+                  type: string
+                  maxLength: 1000
+                location_id:
+                  type: integer
+                lat:
+                  type: number
+                  format: float
+                lng:
+                  type: number
+                  format: float
+                image_url:
+                  type: string
+      responses:
+        201:
+          description: Post created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  user_id:
+                    type: integer
+                  description:
+                    type: string
+                  image_url:
+                    type: string
+                  location_id:
+                    type: integer
+                  lat:
+                    type: number
+                  lng:
+                    type: number
+                  created_at:
+                    type: string
+                    format: date-time
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+
+    get:
+      summary: Get posts with filtering
+      description: Get posts with various filters and pagination. Use sort=popular for popular posts.
+      tags: [Posts]
+      parameters:
+        - name: user_id
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Filter by user ID
+        - name: location_id
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Filter by location ID
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 50
+          description: Number of posts to return
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+          description: Pagination offset
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [newest, oldest, popular]
+            default: newest
+          description: Sort order (popular = by likes count)
+      responses:
+        200:
+          description: List of posts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  posts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        user_id:
+                          type: integer
+                        description:
+                          type: string
+                        image_url:
+                          type: string
+                        location_id:
+                          type: integer
+                        lat:
+                          type: number
+                        lng:
+                          type: number
+                        likes_count:
+                          type: integer
+                        comments_count:
+                          type: integer
+                        created_at:
+                          type: string
+                          format: date-time
+                  total:
+                    type: integer
+                  has_more:
+                    type: boolean
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+
+  /posts/{post_id}:
+    get:
+      summary: Get specific post
+      description: Get post by ID
+      tags: [Posts]
+      parameters:
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Post details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  user_id:
+                    type: integer
+                  description:
+                    type: string
+                  image_url:
+                    type: string
+                  location_id:
+                    type: integer
+                  lat:
+                    type: number
+                  lng:
+                    type: number
+                  likes_count:
+                    type: integer
+                  comments_count:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+        404:
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+
+    put:
+      summary: Update post
+      description: Update post description and location
+      tags: [Posts]
+      parameters:
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  maxLength: 1000
+                location_id:
+                  type: integer
+                lat:
+                  type: number
+                  format: float
+                lng:
+                  type: number
+                  format: float
+                image_url:
+                  type: string
+      responses:
+        200:
+          description: Post updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  user_id:
+                    type: integer
+                  description:
+                    type: string
+                  image_url:
+                    type: string
+                  location_id:
+                    type: integer
+                  lat:
+                    type: number
+                  lng:
+                    type: number
+                  updated_at:
+                    type: string
+                    format: date-time
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+        403:
+          description: Not authorized to update this post
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+        404:
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+
+    delete:
+      summary: Delete post
+      description: Delete post by ID
+      tags: [Posts]
+      parameters:
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Post deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Post deleted successfully"
+        403:
+          description: Not authorized to delete this post
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+        404:
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+
+  # ===== FEED =====
+  /users/{user_id}/feed:
+    get:
+      summary: Get user's subscription feed
+      description: Get posts from users that the current user is subscribed to, sorted by newest first
+      tags: [Feed]
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            description: User ID to get feed for
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 50
+            description: Number of posts to return
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+            description: Pagination offset
+      responses:
+        200:
+          description: List of posts from subscribed users (newest first)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  posts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        user_id:
+                          type: integer
+                        description:
+                          type: string
+                        image_url:
+                          type: string
+                        location_id:
+                          type: integer
+                        lat:
+                          type: number
+                        lng:
+                          type: number
+                        likes_count:
+                          type: integer
+                        comments_count:
+                          type: integer
+                        created_at:
+                          type: string
+                          format: date-time
+                        user:
+                          type: object
+                          properties:
+                            username:
+                              type: string
+                            avatar_url:
+                              type: string
+                  total:
+                    type: integer
+                    description: Total number of posts in feed
+                  has_more:
+                    type: boolean
+                    description: Whether there are more posts to load
+        404:
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+
+  # ===== LIKES =====
+  /posts/{post_id}/likes:
+    post:
+      summary: Like a post
+      description: Add like to a post
+      tags: [Likes]
+      parameters:
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+              properties:
+                user_id:
+                  type: integer
+                  description: User ID who likes the post
+      responses:
+        201:
+          description: Post liked successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  likes_count:
+                    type: integer
+        400:
+          description: Already liked or invalid data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+        404:
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+
+    delete:
+      summary: Remove like from post
+      description: Remove user's like from a post
+      tags: [Likes]
+      parameters:
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: user_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            description: User ID who wants to remove like
+      responses:
+        200:
+          description: Like removed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  likes_count:
+                    type: integer
+        404:
+          description: Like not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+
+  # ===== COMMENTS =====
+  /posts/{post_id}/comments:
+    post:
+      summary: Add comment to post
+      description: Add comment to a post (average 100 characters)
+      tags: [Comments]
+      parameters:
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+                - text
+              properties:
+                user_id:
+                  type: integer
+                text:
+                  type: string
+                  maxLength: 500
+                  description: Comment text
+      responses:
+        201:
+          description: Comment added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  user_id:
+                    type: integer
+                  text:
+                    type: string
+                  created_at:
+                    type: string
+                    format: date-time
+        400:
+          description: Invalid comment data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+        404:
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+
+    get:
+      summary: Get post comments
+      description: Get comments for a specific post sorted by newest first
+      tags: [Comments]
+      parameters:
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        200:
+          description: List of comments (newest first)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        user_id:
+                          type: integer
+                        text:
+                          type: string
+                        created_at:
+                          type: string
+                          format: date-time
+                        user:
+                          type: object
+                          properties:
+                            username:
+                              type: string
+                  total:
+                    type: integer
+        404:
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+
+  # ===== SUBSCRIPTIONS =====
+  /users/{target_user_id}/subscriptions:
+    post:
+      summary: Subscribe to user
+      description: Subscribe to another user to see their posts
+      tags: [Subscriptions]
+      parameters:
+        - name: target_user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+              properties:
+                user_id:
+                  type: integer
+                  description: User ID who wants to subscribe
+      responses:
+        201:
+          description: Successfully subscribed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  subscriber_id:
+                    type: integer
+                  target_id:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: date-time
+        400:
+          description: Already subscribed or limit reached
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+        404:
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+
+    delete:
+      summary: Unsubscribe from user
+      description: Unsubscribe from user
+      tags: [Subscriptions]
+      parameters:
+        - name: target_user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: user_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            description: User ID who wants to unsubscribe
+      responses:
+        200:
+          description: Successfully unsubscribed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unsubscribed successfully"
+        404:
+          description: Subscription not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+
+  # ===== PLACES =====
+  /places:
+    get:
+      summary: Get popular travel places
+      description: Get popular travel places sorted by post count
+      tags: [Places]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        200:
+          description: List of popular places
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  places:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        location_id:
+                          type: integer
+                        posts_count:
+                          type: integer
+                        image_url:
+                          type: string
+                  total:
+                    type: integer
+                  has_more:
+                    type: boolean
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
