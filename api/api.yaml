@@ -1,4 +1,4 @@
-openapi: 3.0.4
+openapi: 3.0.0
 info:
   title: Travel Social Network API
   description: API для социальной сети путешественников
@@ -558,6 +558,60 @@ paths:
                 properties:
                   err_msg:
                     type: string
+        404:
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  err_msg:
+                    type: string
+
+    get:
+      summary: Get likes
+      description: Get post likes
+      tags: [Likes]
+      parameters:
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: List of likes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  likes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user_id:
+                          type: integer
+                        created_at:
+                          type: string
+                          format: date-time
+                        user:
+                          type: object
+                          properties:
+                            username:
+                              type: string
+                  total:
+                    type: integer
         404:
           description: Post not found
           content:
