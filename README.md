@@ -133,6 +133,8 @@ Capacity = 1072Tb (36)
 SSD (nVME) = 36
 ```
 
+Дешевле будет 11 SSD (SATA)
+
 ### Reaction_DB
 
 Per year = (0.03 Мб/с + 0.03 Мб/с) * 86400 * 365 = 1892160 Мб = 1,8 Гб
@@ -160,29 +162,62 @@ Capacity = 1.8 Гб (1)
 SSD (nVME) = 1
 ```
 
+Дешевле будет 1 SSD (nVME)
+
 ### Post_DB
 
-Per year = (0.04 Мб/c + 0.005 Мб/c) * 86400 * 365 = 1419120 Мб = 1,4 Гб
+Per year = (0.04 Мб/c + 0.005 Мб/c) * 86400 * 365 = 1419120 Мб = 1,4 Тб
 ```
 HDD:
-IOPS = 17 + 579 + 4 + 231 = 831 (9)
+IOPS = 17 + 579 + 4 = 600 (6)
 Throughput = 28 Мб/c (1)
-Capacity = 1.4 Гб (1)
-HDD = 9
+Capacity = 1.4 Тб (1)
+HDD = 6
 ```
 
 ```
 SSD (SATA):
-IOPS = 17 + 579 + 4 + 231 = 831 (1)
+IOPS = 17 + 579 + 4 = 600 (1)
 Throughput = 28 Мб/c (1)
-Capacity = 1.4 Гб (1)
+Capacity = 1.4 Тб (1)
 SSD (SATA) = 1
 ```
 
 ```
 SSD (nVME):
-IOPS = 17 + 579 + 4 + 231 = 831 (1)
+IOPS = 17 + 579 + 4 = 600 (1)
 Throughput = 28 Мб/c (1)
-Capacity = 1.4 Гб (1)
+Capacity = 1.4 Тб (1)
 SSD (nVME) = 1
 ```
+
+Дешевле будет 1 SSD(SATA)
+
+### Subscriptions_DB
+
+Per year = 0.005 Мб/c * 86400 * 365 = 157680 Мб = 158 Гб
+```
+HDD:
+IOPS = 231 (3)
+Throughput = 0,005 Мб/с (1)
+Capacity = 158 Гб (1)
+HDD = 3
+```
+
+```
+SSD (SATA):
+IOPS = 231 (1)
+Throughput = 0,005 Мб/с (1)
+Capacity = 158 Гб (1)
+SSD (SATA) = 1
+```
+
+```
+SSD (nVME):
+IOPS = 231 (1)
+Throughput = 0,005 Мб/с (1)
+Capacity = 158 Гб (1)
+SSD (nVME) = 1
+```
+
+Дешевле будет 1 SSD(SATA)
