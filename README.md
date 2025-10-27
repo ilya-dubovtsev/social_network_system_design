@@ -221,3 +221,28 @@ SSD (nVME) = 1
 ```
 
 Дешевле будет 1 SSD(SATA)
+
+## Оценка количества хостов
+### Media_DB
+```
+Hosts = 11 / 2 = 6
+Hosts_with_replication = 6 * 3 = 18
+```
+
+### Reaction_DB
+```
+Hosts = 1 / 1 = 1
+Hosts_with_replication = 1 * 3 = 3
+```
+
+### Post_DB
+```
+Hosts = 1 / 1 = 1
+Hosts_with_replication = 1 * 3 = 3
+```
+
+### Subscriptions_DB
+```
+Hosts = 1 / 1 = 1
+Hosts_with_replication = 1 * 3 = 3
+```

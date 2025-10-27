@@ -1,5 +1,12 @@
 // Database: post_db
 
+// Replication:
+// - master-slave(sync)-slave(async)
+// - RF = 3
+//
+// Sharding:
+// - key based by user_id
+
 Table posts {
   id uuid [primary key]
   user_id bigint [not null]
