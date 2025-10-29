@@ -1,0 +1,22 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User")
+Container(loadBalancer, "Load Balancer", "Nginx", "Uses round robin")
+
+System_Boundary(mediaSystem, "Media system") {
+    Container(mediaService, "Media Service", "Go", "Handles requests to save media files and proxies requests to receive media files", $tags="webApp")
+    ContainerDb(mediaDatabase, "Media database", "PostgreSQL", "Meta information of media files",  $tags="db")
+    ContainerDb(mediaStorage, "Media storage", "CEPH", "Stores media content",  $tags="db")
+}
+ContainerQueue(postsQueue, "Posts queue", "Kafka", "Transfers posts from Post System")
+Container(postsSystem, "Posts system", "Software system")
+
+Rel(user, loadBalancer, "Upload the image and get the image", "REST")
+Rel(loadBalancer, mediaService, "Upload the image and get the image", "REST")
+
+Rel(mediaService, mediaDatabase, "Stores meta information of media files")
+Rel(mediaService, mediaStorage, "Stores media content")
+Rel(postsQueue, mediaService, "Consume Posts")
+Rel(postsSystem, postsQueue, "Send Posts")
+@enduml
