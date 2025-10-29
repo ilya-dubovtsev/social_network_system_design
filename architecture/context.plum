@@ -1,0 +1,18 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User")
+Container(apiGateway, "Api Gateway", "Software system", "Handles requests")
+Container(postsSystem, "Posts system", "Software system", "CRUD posts")
+Container(mediaSystem, "Media system", "Software system", "Download/upload media")
+Container(reactionsSystem, "Reactions system", "Software system", "Like, remove like, CRUD comments")
+Container(subscriptionsSystem, "Subscriptions system", "Software system", "Create/delete subscription")
+
+Rel(user, apiGateway, "All requests")
+Rel(apiGateway, postsSystem, "CRUD posts")
+Rel(apiGateway, mediaSystem, "Download/upload images")
+Rel(apiGateway, reactionsSystem, "Likes, comments")
+Rel(apiGateway, subscriptionsSystem, "Create, delete subscription")
+
+
+@endumlco

@@ -34,6 +34,50 @@
     - Получение первых 20 постов в ленте - 2с
     - Оценка поста / комментарий / подписка - 1с
 
+## Design overview
+
+For system design I have  used [C4 model](https://c4model.com/).
+
+<p align="center">
+    </br><b>Level 1.</b> System context diagram</br></br>
+</p>
+
+<p align="center">
+  <img src="images/diagrams/context.svg" />
+</p>
+
+<p align="center">
+    </br><b>Level 2.</b> Posts system diagram</br></br>
+</p> 
+
+<p align="center">
+  <img src="images/diagrams/posts.svg" />
+</p>
+
+<p align="center">
+    </br><b>Level 2.</b> Media system diagram</br></br>
+</p> 
+
+<p align="center">
+  <img src="images/diagrams/media.svg" />
+</p>
+
+<p align="center">
+    </br><b>Level 2.</b> Reactions system diagram</br></br>
+</p> 
+
+<p align="center">
+  <img src="images/diagrams/reactions.svg" />
+</p>
+
+<p align="center">
+    </br><b>Level 2.</b> Subscriptions system diagram</br></br>
+</p> 
+
+<p align="center">
+  <img src="images/diagrams/subscriptions.svg" />
+</p>
+
 ## Нагрузка
 ### Посты
 - RPS (write) = 10 000 000 / 7 / 86400 = 17

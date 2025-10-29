@@ -1,0 +1,21 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User")
+Container(loadBalancer, "Load Balancer", "Nginx", "Uses round robin")
+
+System_Boundary(subscriptionsSystem, "Subscriptions system") {
+    Container(subscriptionsService, "Subscriptions Service", "Go", "Handles requests to subscribe (unsubscribe) to the author", $tags="webApp")
+    ContainerDb(subscriptionsDatabase, "Subscriptions database", "PostgreSQL", "Subscriptions",  $tags="db")
+}
+
+ContainerQueue(subscriptionsQueue, "Subscriptions queue", "Kafka", "Transfers subscriptions to Post System")
+Container(postsSystem, "Posts system", "Software system")
+
+Rel(user, loadBalancer, "Create, delete subscription", "REST")
+Rel(loadBalancer, subscriptionsService, "Create, delete subscription", "REST")
+
+Rel(subscriptionsService, subscriptionsDatabase, "Stores subscriptions of the users")
+Rel(subscriptionsService, subscriptionsQueue, "Sends subscriptions to queue")
+Rel(subscriptionsQueue, postsSystem, "Consumes subscriptions")
+@enduml

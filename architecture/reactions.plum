@@ -1,0 +1,21 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User")
+Container(loadBalancer, "Load Balancer", "Nginx", "Uses round robin")
+
+System_Boundary(reactionsSystem, "Reactions system") {
+    Container(reactionsService, "Reactions Service", "Go", "Handles requests to like (delete like), add, update, delete comments", $tags="webApp")
+    ContainerDb(reactionsDatabase, "Reaction database", "PostgreSQL", "likes, comments",  $tags="db")
+}
+
+ContainerQueue(reactionsQueue, "Reactions queue", "Kafka", "Transfers reactions to Post System")
+Container(postsSystem, "Posts system", "Software system")
+
+Rel(user, loadBalancer, "Like (delete like), add, update, delete comments", "REST")
+Rel(loadBalancer, reactionsService, "like (delete like), add, update, delete comments", "REST")
+
+Rel(reactionsService, reactionsDatabase, "Stores reactions")
+Rel(reactionsService, reactionsQueue, "Sends reactions to queue")
+Rel(reactionsQueue, postsSystem, "Consumes reactions")
+@enduml
